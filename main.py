@@ -7,10 +7,13 @@ app = Flask(__name__)
 @app.route('/generate-docx', methods=['POST'])
 def generate_docx():
     try:
-        # 获取上传的模板文件
+        # 获取上传的模板文件（如果有）
         template_file = request.files.get('template')
-        if not template_file:
-            return {"error": "未上传模板文件"}, 400
+        if template_file:
+            doc = DocxTemplate(template_file)
+        else:
+            # 没有上传模板时，使用默认模板
+            doc = DocxTemplate('final_template.docx')
 
         # 获取数据（假设前端用 form-data 传递 json 字符串）
         data = request.form.get('data')
@@ -20,8 +23,7 @@ def generate_docx():
         import json
         data = json.loads(data)
 
-        # 用上传的模板生成文档
-        doc = DocxTemplate(template_file)
+        # 用模板生成文档
         doc.render(data)
 
         output_stream = BytesIO()
